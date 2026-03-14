@@ -51,14 +51,56 @@ selected_tz = st.sidebar.selectbox(
 st.session_state['timezone'] = selected_tz
 local_tz = pytz.timezone(selected_tz)
 
-# 상단 로고 이미지 배치 (가로 모드에 맞춰 세로 높이를 줄이기 위해 비율 조정)
-col1, col2, col3 = st.columns([2, 1, 2])
+# --- 전체화면 토글 버튼 (모바일 우측 하단 플로팅 아이콘) ---
+fullscreen_js = """
+<img src onerror='
+    // 버튼이 중복 생성되는 것을 방지합니다.
+    if (!document.getElementById("fs-btn")) {
+        var btn = document.createElement("button");
+        btn.id = "fs-btn";
+        btn.innerHTML = "⛶";
+        btn.title = "전체화면 전환";
+        btn.style.position = "fixed";
+        btn.style.bottom = "20px";
+        btn.style.right = "20px";
+        btn.style.zIndex = "9999";
+        btn.style.width = "55px";
+        btn.style.height = "55px";
+        btn.style.fontSize = "26px";
+        btn.style.borderRadius = "50%";
+        btn.style.border = "none";
+        btn.style.backgroundColor = "rgba(255, 75, 75, 0.9)"; // Streamlit 포인트 색상
+        btn.style.color = "white";
+        btn.style.boxShadow = "0 4px 6px rgba(0,0,0,0.3)";
+        btn.style.cursor = "pointer";
+        btn.style.display = "flex";
+        btn.style.alignItems = "center";
+        btn.style.justifyContent = "center";
+        
+        btn.onclick = function() {
+            var doc = document.documentElement;
+            if (!document.fullscreenElement) {
+                if (doc.requestFullscreen) doc.requestFullscreen();
+                else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen(); // Safari 대응
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); // Safari 대응
+            }
+        };
+        document.body.appendChild(btn);
+    }
+' style="display:none;">
+"""
+st.markdown(fullscreen_js, unsafe_allow_html=True)
+
+# 상단 로고 이미지 배치 (가로 모드에서 짤리지 않도록 중앙 컬럼 비율을 1->2로 확장)
+col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if os.path.exists("logo.jpg"):
         st.image("logo.jpg", use_container_width=True)
     else:
-        # 로고 파일이 없을 경우 기존 텍스트 타이틀 표시 (가운데 정렬)
-        st.markdown("<h2 style='text-align: center;'>💊 잘챙겨 약!</h2>", unsafe_allow_html=True)
+        # 로고 파일이 없을 경우 기존 텍스트 타이틀 표시 (짤림 방지를 위해 줄바꿈 금지 적용)
+        st.markdown("<h2 style='text-align: center; white-space: nowrap;'>💊 잘챙겨 약!</h2>", unsafe_allow_html=True)
 
 # 1. 명언 (상단 여백을 최소화하여 한 화면에 들어오도록 함)
 st.info("💡 건강은 제1의 재산입니다. 오늘 하루도 성실하게!")
