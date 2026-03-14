@@ -52,44 +52,48 @@ st.session_state['timezone'] = selected_tz
 local_tz = pytz.timezone(selected_tz)
 
 # --- 전체화면 토글 버튼 (모바일 우측 하단 플로팅 아이콘) ---
+# 마크다운 코드 블록으로 인식되지 않도록 가장 바깥을 div로 감싸고 들여쓰기를 없앱니다.
 fullscreen_js = """
-<img src onerror='
-    // 버튼이 중복 생성되는 것을 방지합니다.
-    if (!document.getElementById("fs-btn")) {
-        var btn = document.createElement("button");
-        btn.id = "fs-btn";
-        btn.innerHTML = "⛶";
-        btn.title = "전체화면 전환";
-        btn.style.position = "fixed";
-        btn.style.bottom = "20px";
-        btn.style.right = "20px";
-        btn.style.zIndex = "9999";
-        btn.style.width = "55px";
-        btn.style.height = "55px";
-        btn.style.fontSize = "26px";
-        btn.style.borderRadius = "50%";
-        btn.style.border = "none";
-        btn.style.backgroundColor = "rgba(255, 75, 75, 0.9)"; // Streamlit 포인트 색상
-        btn.style.color = "white";
-        btn.style.boxShadow = "0 4px 6px rgba(0,0,0,0.3)";
-        btn.style.cursor = "pointer";
-        btn.style.display = "flex";
-        btn.style.alignItems = "center";
-        btn.style.justifyContent = "center";
+<div style="display: none;">
+<img src="dummy.jpg" onerror="
+    if (!document.getElementById('fs-btn')) {
+        var btn = document.createElement('button');
+        btn.id = 'fs-btn';
+        btn.innerHTML = '⛶';
+        btn.title = '전체화면 전환';
+        btn.style.position = 'fixed';
+        btn.style.bottom = '20px';
+        btn.style.right = '20px';
+        btn.style.zIndex = '9999';
+        btn.style.width = '55px';
+        btn.style.height = '55px';
+        btn.style.fontSize = '26px';
+        btn.style.borderRadius = '50%';
+        btn.style.border = 'none';
+        btn.style.backgroundColor = 'rgba(255, 75, 75, 0.9)';
+        btn.style.color = 'white';
+        btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
+        btn.style.cursor = 'pointer';
+        btn.style.display = 'flex';
+        btn.style.alignItems = 'center';
+        btn.style.justifyContent = 'center';
         
         btn.onclick = function() {
-            var doc = document.documentElement;
-            if (!document.fullscreenElement) {
+            var doc = window.parent.document.documentElement || document.documentElement;
+            var fsElement = window.parent.document.fullscreenElement || document.fullscreenElement;
+            if (!fsElement) {
                 if (doc.requestFullscreen) doc.requestFullscreen();
-                else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen(); // Safari 대응
+                else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
             } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); // Safari 대응
+                var docObj = window.parent.document || document;
+                if (docObj.exitFullscreen) docObj.exitFullscreen();
+                else if (docObj.webkitExitFullscreen) docObj.webkitExitFullscreen();
             }
         };
-        document.body.appendChild(btn);
+        (window.parent.document.body || document.body).appendChild(btn);
     }
-' style="display:none;">
+">
+</div>
 """
 st.markdown(fullscreen_js, unsafe_allow_html=True)
 
